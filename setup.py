@@ -25,10 +25,10 @@ library_dirs = [
 setup(
         name='arid',
         version='0.1',
-        description='Ultra-Metric Learning.',
+        description='Affinity Representing Instance Descriptors.',
         url='https://github.com/funkelab/arid',
         author='Jan Funke',
-        author_email='jfunke@iri.upc.edu',
+        author_email='funkej@janelia.hhmi.org',
         license='MIT',
         packages=[
             'arid',
