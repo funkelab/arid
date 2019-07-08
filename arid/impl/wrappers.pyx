@@ -1,6 +1,6 @@
 import numpy as np
 cimport numpy as np
-from libc.stdint cimport int64_t
+from libc.stdint cimport uint64_t
 
 
 cdef extern from "connected_components.h":
@@ -8,7 +8,7 @@ cdef extern from "connected_components.h":
         size_t numNodes,
         const double* mst,
         double threshold,
-        int64_t* components);
+        uint64_t* components);
 
 
 def find_components(
@@ -30,9 +30,9 @@ def find_components(
         mst = np.ascontiguousarray(mst)
 
     # prepare output arrays
-    cdef np.ndarray[int64_t, ndim=1] components = np.zeros(
+    cdef np.ndarray[uint64_t, ndim=1] components = np.zeros(
             (num_nodes,),
-            dtype=np.int64)
+            dtype=np.uint64)
 
     connected_components(
         num_nodes,
