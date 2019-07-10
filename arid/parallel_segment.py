@@ -18,7 +18,8 @@ def parallel_segment(
         threshold,
         block_size,
         num_workers,
-        segmentation):
+        segmentation,
+        block_segmentation=None):
     '''Create a segmentation from an embedding by growing an EMST, pruning
     edges above the given threshold, and finding connected components.
 
@@ -41,6 +42,10 @@ def parallel_segment(
 
             The target array to store the segmentation in. It is assumed that
             all values in this array are zero when this function is called.
+
+        block_segmentation (:class:`daisy.Array`, shape ``(d, h, w)``, optional):
+
+            If given, store the segmentation per block in this array.
     '''
 
     # The context one block needs in order to produce a seamless segmentation:
@@ -64,6 +69,9 @@ def parallel_segment(
 
     num_voxels_in_block = (read_roi/embedding.voxel_size).size()
 
+    if block_segmentation is None:
+        block_segmentation = segmentation
+
     with tempfile.TemporaryDirectory() as tmpdir:
 
         daisy.run_blockwise(
@@ -72,7 +80,7 @@ def parallel_segment(
             write_roi,
             process_function=lambda b: segment_in_block(
                 embedding,
-                segmentation,
+                block_segmentation,
                 num_voxels_in_block,
                 coordinate_scale,
                 threshold,
@@ -96,6 +104,7 @@ def parallel_segment(
         read_roi,
         write_roi,
         process_function=lambda b: relabel_in_block(
+            block_segmentation,
             segmentation,
             nodes,
             components,
@@ -165,11 +174,11 @@ def segment_in_block(
         edges=edges)
 
 
-def relabel_in_block(array, old_values, new_values, block):
+def relabel_in_block(from_array, to_array, old_values, new_values, block):
 
-    a = array.to_ndarray(block.write_roi)
+    a = from_array.to_ndarray(block.write_roi)
     replace_values(a, old_values, new_values, inplace=True)
-    array[block.write_roi] = a
+    to_array[block.write_roi] = a
 
 
 def read_cross_block_merges(tmpdir):
